@@ -9,17 +9,28 @@ const Container = styled.div`
   > * {
     flex-grow: 0;
   }
+  h1 > input {
+    width: 100%;
+    font-size: inherit;
+  }
   > section {
     flex-grow: 1;
     overflow: auto;
+    textarea {
+      width: 100%;
+      height: 90%;
+      resize: none;
+      box-sizing: border-box;
+    }
   }
   > .actions {
     button {
       border: none;
+      margin-right: 0.6em;
       &.right {
         float: right;
       }
-      > span[aria-label] {
+      > span[role='img'] {
         display: block;
         font-size: 1.3rem;
       }
@@ -34,13 +45,14 @@ function NodeViewer({ note }) {
     setContent('## Decrypting');
     decrypt(note.content).then((decrypted) => setContent(decrypted));
   }, [note]);
-  const options =
-    mode === 'view' ? getViewModeOptions({ note, content, setMode }) : null;
+  const options = { note, content, setMode };
+  const renderedComponent =
+    mode === 'view' ? getViewModeOptions(options) : getEditModeOptions(options);
   return (
     <Container className='viewer'>
-      <h1>{options.title}</h1>
-      <section>{options.content}</section>
-      <footer className='actions'>{options.actions}</footer>
+      <h1>{renderedComponent.title}</h1>
+      <section>{renderedComponent.content}</section>
+      <footer className='actions'>{renderedComponent.actions}</footer>
     </Container>
   );
 }
@@ -50,10 +62,49 @@ function getViewModeOptions({ note, content, setMode }) {
     title: note.title,
     content: <ReactMarkdown source={content} />,
     actions: (
-      <button className='right' onClick={() => setMode('edit')}>
-        <span aria-label='edit'>✎</span>
-        Edit
-      </button>
+      <>
+        <button className='right' onClick={() => setMode('edit')}>
+          <span role='img' aria-label='edit'>
+            ✏
+          </span>
+          Edit
+        </button>
+        <button className='right' onClick={() => setMode('edit')}>
+          <span role='img' aria-label='delete'>
+            🗑
+          </span>
+          Delete
+        </button>
+      </>
+    ),
+  };
+}
+
+function getEditModeOptions({ note, content, setMode }) {
+  return {
+    title: <input defaultValue={note.title} />,
+    content: <textarea defaultValue={content} />,
+    actions: (
+      <>
+        <button className='' onClick={() => setMode('view')}>
+          <span role='img' aria-label='cancel'>
+            🚫
+          </span>
+          Cancel
+        </button>
+        <button className='right' onClick={() => setMode('edit')}>
+          <span role='img' aria-label='delete'>
+            🗑
+          </span>
+          Delete
+        </button>
+        <button className='right' onClick={() => setMode('edit')}>
+          <span role='img' aria-label='save'>
+            💾
+          </span>
+          Save
+        </button>
+      </>
     ),
   };
 }
