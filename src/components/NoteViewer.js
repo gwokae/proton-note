@@ -40,10 +40,15 @@ const Container = styled.div`
 
 function NodeViewer({ note, mode, setMode, reloadNotes }) {
   const [content, setContent] = useState();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setContent('## Decrypting');
-    decrypt(note.content).then((decrypted) => setContent(decrypted));
+    setLoading(true);
+    setContent('## Decrypting\nPlease wait...');
+    decrypt(note.content).then((decrypted) => {
+      setContent(decrypted);
+      setLoading(false);
+    });
   }, [note]);
 
   const el = useRef(null);
@@ -53,15 +58,17 @@ function NodeViewer({ note, mode, setMode, reloadNotes }) {
       title: el.current.querySelector('input[name="title"]').value,
       content: el.current.querySelector('textarea[name="content"]').value,
     };
+    setLoading(true);
     encrypt(newNote.content).then((content) => {
       const savedNote = saveOrUpdateNote({
         ...newNote,
         content,
       });
+      setLoading(false);
       reloadNotes(savedNote);
     });
   };
-  const options = { note, content, setMode, reloadNotes, save };
+  const options = { note, content, setMode, reloadNotes, save, loading };
   const renderedComponent =
     mode === 'view' ? getViewModeOptions(options) : getEditModeOptions(options);
   return (
@@ -73,13 +80,17 @@ function NodeViewer({ note, mode, setMode, reloadNotes }) {
   );
 }
 
-function getViewModeOptions({ note, content, setMode, reloadNotes }) {
+function getViewModeOptions({ note, content, setMode, reloadNotes, loading }) {
   return {
     title: note.title,
     content: <ReactMarkdown source={content} className='markdown-body' />,
     actions: (
       <>
-        <button className='right' onClick={() => setMode('edit')}>
+        <button
+          className='right'
+          onClick={() => setMode('edit')}
+          disabled={loading}
+        >
           <span role='img' aria-label='edit'>
             ✏
           </span>
@@ -87,6 +98,7 @@ function getViewModeOptions({ note, content, setMode, reloadNotes }) {
         </button>
         <button
           className='right'
+          disabled={loading}
           onClick={() => {
             deleteNote((item) => item.id === note.id);
             reloadNotes();
@@ -102,19 +114,28 @@ function getViewModeOptions({ note, content, setMode, reloadNotes }) {
   };
 }
 
-function getEditModeOptions({ note, content, setMode, reloadNotes, save }) {
+function getEditModeOptions({
+  note,
+  content,
+  setMode,
+  reloadNotes,
+  save,
+  loading,
+}) {
   return {
-    title: <input name='title' defaultValue={note.title} />,
-    content: <textarea name='content' defaultValue={content} />,
+    title: <input name='title' defaultValue={note.title} disabled={loading} />,
+    content: (
+      <textarea name='content' defaultValue={content} disabled={loading} />
+    ),
     actions: (
       <>
-        <button onClick={() => setMode('view')}>
+        <button onClick={() => setMode('view')} disabled={loading}>
           <span role='img' aria-label='cancel'>
             🚫
           </span>
           Cancel
         </button>
-        <button className='right' onClick={save}>
+        <button className='right' onClick={save} disabled={loading}>
           <span role='img' aria-label='save'>
             💾
           </span>
@@ -122,6 +143,7 @@ function getEditModeOptions({ note, content, setMode, reloadNotes, save }) {
         </button>
         <button
           className='right'
+          disabled={loading}
           onClick={() => {
             deleteNote((item) => item.id === note.id);
             reloadNotes();
