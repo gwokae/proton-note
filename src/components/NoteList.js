@@ -14,14 +14,15 @@ const Container = styled.ul`
     }
   }
 `;
-function NodeList({ notes = [], selectedNote = {}, onSelect }) {
+function NodeList({ notes = [], selectedNote, onSelect }) {
+  const selectedId = selectedNote && selectedNote.id ? selectedNote.id : '';
   return (
     <Container className='notes'>
       {notes.map((note) => (
         <li
           key={note.id}
           onClick={() => onSelect(note)}
-          className={note.id === selectedNote.id ? 'active' : ''}
+          className={note.id === selectedId ? 'active' : ''}
         >
           {note.title}
         </li>

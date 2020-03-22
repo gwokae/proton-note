@@ -47,8 +47,8 @@ function App() {
         <button
           disabled={mode !== 'view'}
           onClick={() => {
-            saveOrUpdateNote({ title: 'new title' });
-            setNotes(getNotes());
+            setNote(null);
+            setMode('edit');
           }}
         >
           <span role='img' aria-label='new note'>
@@ -63,14 +63,12 @@ function App() {
           selectedNote={note}
           onSelect={(note) => setNote(note)}
         />
-        {note !== null ? (
-          <NoteViewer
-            note={note}
-            mode={mode}
-            setMode={setMode}
-            reloadNotes={reloadNotes}
-          />
-        ) : null}
+        <NoteViewer
+          note={note}
+          mode={mode}
+          setMode={setMode}
+          reloadNotes={reloadNotes}
+        />
       </div>
     </Container>
   );

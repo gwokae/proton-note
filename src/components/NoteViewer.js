@@ -45,25 +45,31 @@ function NodeViewer({ note, mode, setMode, reloadNotes }) {
   useEffect(() => {
     setLoading(true);
     setContent('## Decrypting\nPlease wait...');
-    decrypt(note.content).then((decrypted) => {
-      setContent(decrypted);
+    if (note) {
+      decrypt(note.content).then((decrypted) => {
+        setContent(decrypted);
+        setLoading(false);
+      });
+    } else {
+      setContent('');
       setLoading(false);
-    });
+    }
   }, [note]);
 
   const el = useRef(null);
   const save = () => {
-    const newNote = {
-      id: note.id,
-      title: el.current.querySelector('input[name="title"]').value,
-      content: el.current.querySelector('textarea[name="content"]').value,
-    };
+    const title = el.current.querySelector('input[name="title"]').value;
+    const plainContent = el.current.querySelector('textarea[name="content"]')
+      .value;
     setLoading(true);
-    encrypt(newNote.content).then((content) => {
-      const savedNote = saveOrUpdateNote({
-        ...newNote,
+    encrypt(plainContent).then((content) => {
+      const newNote = {
+        title,
         content,
-      });
+      };
+      if (note && note.id) newNote.id = note.id;
+      const savedNote = saveOrUpdateNote(newNote);
+
       setLoading(false);
       reloadNotes(savedNote);
     });
@@ -123,9 +129,19 @@ function getEditModeOptions({
   loading,
 }) {
   return {
-    title: <input name='title' defaultValue={note.title} disabled={loading} />,
+    title: (
+      <input
+        name='title'
+        defaultValue={note ? note.title : 'Untitled Note'}
+        disabled={loading}
+      />
+    ),
     content: (
-      <textarea name='content' defaultValue={content} disabled={loading} />
+      <textarea
+        name='content'
+        defaultValue={note ? content : ''}
+        disabled={loading}
+      />
     ),
     actions: (
       <>
