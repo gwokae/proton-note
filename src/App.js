@@ -1,40 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { getNotes, saveOrUpdateNote } from './utils';
+import NoteList from './components/NoteList';
+import NoteViewer from './components/NoteViewer';
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  > .main {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+
+    ul.notes {
+      flex-basis: 33%;
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+    }
+
+    div.viewer {
+      flex-basis: 66%;
+    }
+  }
   > * {
     padding: 0.6em;
     box-sizing: border-box;
   }
-  ul.notes {
-    margin: 0;
-    list-style: none;
-  }
-
-  ul.notes,
-  div.viewer {
-    display: inline-block;
-    width: 50%;
-    vertical-align: top;
-  }
 `;
 function App() {
+  const [notes, setNotes] = useState(getNotes());
+  const [note, setNote] = useState(notes[0]);
   return (
     <Container className='App'>
       <div className='actions'>
-        <button>
+        <button
+          onClick={() => {
+            saveOrUpdateNote({ title: 'new title' });
+            setNotes(getNotes());
+          }}
+        >
           <span role='img' aria-label='new note'>
             ➕
           </span>
           New note
         </button>
       </div>
-      <ul className='notes'>
-        <li>note1</li>
-        <li>note2</li>
-        <li>note3</li>
-      </ul>
-      <div className='viewer'>view panel</div>
+      <div className='main'>
+        <NoteList
+          notes={notes}
+          selectedNote={note}
+          onSelect={(note) => setNote(note)}
+        />
+        <NoteViewer note={note} />
+      </div>
     </Container>
   );
 }
