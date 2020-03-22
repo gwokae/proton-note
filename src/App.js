@@ -53,7 +53,7 @@ function App() {
           selectedNote={note}
           onSelect={(note) => setNote(note)}
         />
-        <NoteViewer note={note} />
+        {note !== null ? <NoteViewer note={note} /> : null}
       </div>
     </Container>
   );
