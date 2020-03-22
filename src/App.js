@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { getNotes, saveOrUpdateNote } from './utils';
+import { getNotes } from './utils';
 import NoteList from './components/NoteList';
 import NoteViewer from './components/NoteViewer';
 

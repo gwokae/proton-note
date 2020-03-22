@@ -145,7 +145,7 @@ function getEditModeOptions({
     ),
     actions: (
       <>
-        <button onClick={() => setMode('view')} disabled={loading}>
+        <button onClick={() => reloadNotes(note)} disabled={loading}>
           <span role='img' aria-label='cancel'>
             🚫
           </span>
