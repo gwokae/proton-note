@@ -34,6 +34,13 @@ function App() {
   const [mode, setMode] = useState('view');
   const [notes, setNotes] = useState(getNotes());
   const [note, setNote] = useState(notes[0]);
+
+  const reloadNotes = () => {
+    const notes = getNotes();
+    setNotes(notes);
+    setNote(notes[0]);
+    setMode('view');
+  };
   return (
     <Container className='App'>
       <div className='actions'>
@@ -57,7 +64,12 @@ function App() {
           onSelect={(note) => setNote(note)}
         />
         {note !== null ? (
-          <NoteViewer note={note} mode={mode} setMode={setMode} />
+          <NoteViewer
+            note={note}
+            mode={mode}
+            setMode={setMode}
+            reloadNotes={reloadNotes}
+          />
         ) : null}
       </div>
     </Container>

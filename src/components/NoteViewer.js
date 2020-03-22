@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import { decrypt } from '../utils';
+import { decrypt, deleteNote } from '../utils';
 
 const Container = styled.div`
   display: flex;
@@ -38,14 +38,14 @@ const Container = styled.div`
   }
 `;
 
-function NodeViewer({ note, mode, setMode }) {
+function NodeViewer({ note, mode, setMode, reloadNotes }) {
   const [content, setContent] = useState();
 
   useEffect(() => {
     setContent('## Decrypting');
     decrypt(note.content).then((decrypted) => setContent(decrypted));
   }, [note]);
-  const options = { note, content, setMode };
+  const options = { note, content, setMode, reloadNotes };
   const renderedComponent =
     mode === 'view' ? getViewModeOptions(options) : getEditModeOptions(options);
   return (
@@ -57,7 +57,7 @@ function NodeViewer({ note, mode, setMode }) {
   );
 }
 
-function getViewModeOptions({ note, content, setMode }) {
+function getViewModeOptions({ note, content, setMode, reloadNotes }) {
   return {
     title: note.title,
     content: <ReactMarkdown source={content} />,
@@ -69,7 +69,13 @@ function getViewModeOptions({ note, content, setMode }) {
           </span>
           Edit
         </button>
-        <button className='right' onClick={() => setMode('edit')}>
+        <button
+          className='right'
+          onClick={() => {
+            deleteNote((item) => item.id === note.id);
+            reloadNotes();
+          }}
+        >
           <span role='img' aria-label='delete'>
             🗑
           </span>
@@ -80,7 +86,7 @@ function getViewModeOptions({ note, content, setMode }) {
   };
 }
 
-function getEditModeOptions({ note, content, setMode }) {
+function getEditModeOptions({ note, content, setMode, reloadNotes }) {
   return {
     title: <input defaultValue={note.title} />,
     content: <textarea defaultValue={content} />,
@@ -93,16 +99,22 @@ function getEditModeOptions({ note, content, setMode }) {
           Cancel
         </button>
         <button className='right' onClick={() => setMode('edit')}>
-          <span role='img' aria-label='delete'>
-            🗑
-          </span>
-          Delete
-        </button>
-        <button className='right' onClick={() => setMode('edit')}>
           <span role='img' aria-label='save'>
             💾
           </span>
           Save
+        </button>
+        <button
+          className='right'
+          onClick={() => {
+            deleteNote((item) => item.id === note.id);
+            reloadNotes();
+          }}
+        >
+          <span role='img' aria-label='delete'>
+            🗑
+          </span>
+          Delete
         </button>
       </>
     ),
