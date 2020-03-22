@@ -157,19 +157,21 @@ function getEditModeOptions({
           </span>
           Save
         </button>
-        <button
-          className='right'
-          disabled={loading}
-          onClick={() => {
-            deleteNote((item) => item.id === note.id);
-            reloadNotes();
-          }}
-        >
-          <span role='img' aria-label='delete'>
-            🗑
-          </span>
-          Delete
-        </button>
+        {!note ? null : (
+          <button
+            className='right'
+            disabled={loading}
+            onClick={() => {
+              deleteNote((item) => item.id === note.id);
+              reloadNotes();
+            }}
+          >
+            <span role='img' aria-label='delete'>
+              🗑
+            </span>
+            Delete
+          </button>
+        )}
       </>
     ),
   };
