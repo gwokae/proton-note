@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { getNotes } from './utils';
+import { getNotes, encrypt } from './utils';
 import NoteList from './components/NoteList';
 import NoteViewer from './components/NoteViewer';
 
@@ -30,15 +30,23 @@ const Container = styled.div`
     box-sizing: border-box;
   }
 `;
+
+const welcomeNote = {
+  title: 'Welcome to ProtonNote',
+  content: encrypt(` You don't have any notes. You can add a new note by clicking the above 'New note ' button. 
+
+>Author: [Leonard Lin](https://github.com/gwokae)
+`),
+};
 function App() {
   const [mode, setMode] = useState('view');
   const [notes, setNotes] = useState(getNotes());
-  const [note, setNote] = useState(notes[0]);
+  const [note, setNote] = useState(notes[0] || welcomeNote);
 
   const reloadNotes = (activeNode) => {
     const notes = getNotes();
     setNotes(notes);
-    setNote(activeNode || notes[0]);
+    setNote(activeNode || notes[0] || welcomeNote);
     setMode('view');
   };
   return (
