@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import { decrypt, deleteNote } from '../utils';
+import { encrypt, decrypt, deleteNote, saveOrUpdateNote } from '../utils';
 
 const Container = styled.div`
   display: flex;
@@ -45,11 +45,27 @@ function NodeViewer({ note, mode, setMode, reloadNotes }) {
     setContent('## Decrypting');
     decrypt(note.content).then((decrypted) => setContent(decrypted));
   }, [note]);
-  const options = { note, content, setMode, reloadNotes };
+
+  const el = useRef(null);
+  const save = () => {
+    const newNote = {
+      id: note.id,
+      title: el.current.querySelector('input[name="title"]').value,
+      content: el.current.querySelector('textarea[name="content"]').value,
+    };
+    encrypt(newNote.content).then((content) => {
+      const savedNote = saveOrUpdateNote({
+        ...newNote,
+        content,
+      });
+      reloadNotes(savedNote);
+    });
+  };
+  const options = { note, content, setMode, reloadNotes, save };
   const renderedComponent =
     mode === 'view' ? getViewModeOptions(options) : getEditModeOptions(options);
   return (
-    <Container className='viewer'>
+    <Container className='viewer' ref={el}>
       <h1>{renderedComponent.title}</h1>
       <section>{renderedComponent.content}</section>
       <footer className='actions'>{renderedComponent.actions}</footer>
@@ -60,7 +76,7 @@ function NodeViewer({ note, mode, setMode, reloadNotes }) {
 function getViewModeOptions({ note, content, setMode, reloadNotes }) {
   return {
     title: note.title,
-    content: <ReactMarkdown source={content} />,
+    content: <ReactMarkdown source={content} className='markdown-body' />,
     actions: (
       <>
         <button className='right' onClick={() => setMode('edit')}>
@@ -86,19 +102,19 @@ function getViewModeOptions({ note, content, setMode, reloadNotes }) {
   };
 }
 
-function getEditModeOptions({ note, content, setMode, reloadNotes }) {
+function getEditModeOptions({ note, content, setMode, reloadNotes, save }) {
   return {
-    title: <input defaultValue={note.title} />,
-    content: <textarea defaultValue={content} />,
+    title: <input name='title' defaultValue={note.title} />,
+    content: <textarea name='content' defaultValue={content} />,
     actions: (
       <>
-        <button className='' onClick={() => setMode('view')}>
+        <button onClick={() => setMode('view')}>
           <span role='img' aria-label='cancel'>
             🚫
           </span>
           Cancel
         </button>
-        <button className='right' onClick={() => setMode('edit')}>
+        <button className='right' onClick={save}>
           <span role='img' aria-label='save'>
             💾
           </span>

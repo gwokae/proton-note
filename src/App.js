@@ -35,10 +35,10 @@ function App() {
   const [notes, setNotes] = useState(getNotes());
   const [note, setNote] = useState(notes[0]);
 
-  const reloadNotes = () => {
+  const reloadNotes = (activeNode) => {
     const notes = getNotes();
     setNotes(notes);
-    setNote(notes[0]);
+    setNote(activeNode || notes[0]);
     setMode('view');
   };
   return (
