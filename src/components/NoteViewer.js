@@ -38,9 +38,9 @@ const Container = styled.div`
   }
 `;
 
-function NodeViewer({ note }) {
+function NodeViewer({ note, mode, setMode }) {
   const [content, setContent] = useState();
-  const [mode, setMode] = useState('view');
+
   useEffect(() => {
     setContent('## Decrypting');
     decrypt(note.content).then((decrypted) => setContent(decrypted));

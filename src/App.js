@@ -21,6 +21,7 @@ const Container = styled.div`
     }
 
     div.viewer {
+      padding-left: 1em;
       flex-basis: 66%;
     }
   }
@@ -30,12 +31,14 @@ const Container = styled.div`
   }
 `;
 function App() {
+  const [mode, setMode] = useState('view');
   const [notes, setNotes] = useState(getNotes());
   const [note, setNote] = useState(notes[0]);
   return (
     <Container className='App'>
       <div className='actions'>
         <button
+          disabled={mode !== 'view'}
           onClick={() => {
             saveOrUpdateNote({ title: 'new title' });
             setNotes(getNotes());
@@ -53,7 +56,9 @@ function App() {
           selectedNote={note}
           onSelect={(note) => setNote(note)}
         />
-        {note !== null ? <NoteViewer note={note} /> : null}
+        {note !== null ? (
+          <NoteViewer note={note} mode={mode} setMode={setMode} />
+        ) : null}
       </div>
     </Container>
   );
